@@ -1,12 +1,14 @@
 #include <GyverBME280.h>
 #include <MPU9250_asukiaaa.h>
-
 MPU9250_asukiaaa mySensor; // создание экзепляра класса MPU9250_asukiaa
 GyverBME280 bme; // создание экезпляра класса GyverBME280
-float aX, aY, aZ, aSqrt;
-const int buttonPin = 2;
+float aSqrt;
+const int buttonPin = 13;
+const float value = 0.1;
 float nullAccel = 0.0;
 int buttonState = 0;
+int digits = 1000;
+int sum = 0;
 
 void setup() {
   Serial.begin(9600);
@@ -19,22 +21,38 @@ void setup() {
 }
 
 void loop() {
-  // Колибровка в ноль
   buttonState = digitalRead(buttonPin);
 
   if (buttonState == 1) {
     nullAccel = mySensor.accelSqrt();
   }
-  if (mySensor.accelUpdate() == 0){
+
+  // Колибровка в ноль
+  if (mySensor.accelUpdate() == 0) {
     aSqrt = mySensor.accelSqrt() - nullAccel;
-    }
-  Serial.print(aSqrt);
-  
-  if (abs(aSqrt) < 0.1) {
+  }
+
+  if (nullAccel != 0) {
+    Serial.print(mediumArray());
+  }
+  else {
+    Serial.print(aSqrt);
+  }
+
+  if (abs(aSqrt) < value) {
     Serial.print("\tЗавис!");
   }
   else {
     Serial.print("\tДвигаюсь!");
   }
   Serial.println("");
+}
+
+int mediumArray() {
+  for (int count = 0; count < digits; count++) {
+    sum += aSqrt;
+  }
+  int result = sum / digits;
+  
+  return result;
 }
